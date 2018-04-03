@@ -15,9 +15,9 @@ var sanitize = function(data) {
     });
 };
 
-var sendOldMessages = function() {
+var sendOldMessages = function(socket) {
     mensagens.forEach(element => {
-        io.emit('chat message', element);
+        socket.emit('chat message', element);
     });
 }
 
@@ -26,8 +26,12 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-    console.log('a user connected');
-    sendOldMessages();
+    sendOldMessages(socket);
+    socket.on('login', function(nick) {
+        if (nick) {
+            io.emit('login', nick);
+        }
+    });
     socket.on('chat message', function(msg){
         msg.mensagem = sanitize(msg.mensagem);
         msg.nick = sanitize(msg.nick);

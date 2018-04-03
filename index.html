@@ -9,11 +9,13 @@
     <style>
         html {background-color: #3273dc;}
         #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
+        #messages .msg { padding: 5px 10px; }
+        #messages .otr:nth-child(odd) .tag { background: #eee; }
         .corpo-chat {height: 500px; overflow-y: scroll;}
         .field-chat{width: 100%;}
+        .connect {opacity: .6;}
         span.vc{color: blueviolet;}
+        .tag {height: auto !important; padding: 5px;white-space: unset !important;word-break: break-all;}
     </style>
 </head>
 <body class="is-primary">
@@ -32,19 +34,21 @@
     <section class="section">
         <div class="container">
             <div id="nick" style="display: none;">
-                <div class="field has-addons">
-                    <div class="control">
-                        <input placeholder="Escolha seu nick" class="input" id="input-nick" autocomplete="off" />
+                <form action="" id="nickForm">
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input placeholder="Escolha seu nick" class="input" id="input-nick" autocomplete="off" />
+                        </div>
+                        <div class="control">
+                            <button class="button is-primary">Pronto!</button>
+                        </div>
                     </div>
-                    <div class="control">
-                        <button class="button is-primary" id="defnick">Pronto!</button>
-                    </div>
-                </div>
+                </form>
             </div>
             <div class="card" id="chat-top" style="display:none;">
-                <form action="">
-                    <div class="card-content corpo-chat">
-                        <ul id="messages"></ul>
+                <form action="" id="msgForm">
+                    <div class="card-content corpo-chat" id="chat">
+                        <div id="messages"></div>
                     </div>
                     <footer class="card-footer">
                         <div class="field has-addons field-chat">
@@ -67,23 +71,25 @@
     <script>
         var nick = $("#nick");
         var chatTop = $("#chat-top");
-        $( document ).ready(function() {
-            if (localStorage.getItem('nick'))
-            chatTop.show();
-            else 
-            nick.show();
-            
-        });
-        $("#defnick").on('click', function () {
-            var inputNick = $("#input-nick");
-            if (inputNick.val()) {
-                localStorage.setItem('nick', inputNick.val());
-                location.reload();
-            }
-        });
         $(function () {
+            function updateScroll(){
+                var el = $("#chat");
+                el.scrollTop(10000000);
+            }
             var socket = io();
-            $('form').submit(function(){
+            if (localStorage.getItem('nick')) {
+                chatTop.show();
+            } else
+            nick.show();
+            $("#nickForm").on('submit', function () {
+                var inputNick = $("#input-nick");
+                if (inputNick.val()) {
+                    localStorage.setItem('nick', inputNick.val());
+                    socket.emit('login', localStorage.getItem('nick'));
+                    location.reload();
+                }
+            });
+            $('#msgForm').submit(function(){
                 var messageInput = $('#m');
                 if (messageInput.val()) {
                     var nick = localStorage.getItem('nick');
@@ -93,10 +99,19 @@
                 return false;
             });
             socket.on('chat message', function(msg){
-                var nome = msg.nick == localStorage.getItem('nick') ? '<span class="vc">'+msg.nick+'</span>' : msg.nick;
-                $('#messages').append($('<li><strong>'+nome+':</strong> '+msg.mensagem+'</li>'));
+                if (msg.nick == localStorage.getItem('nick')) {
+                    $('#messages').append($('<div class="msg is-clearfix"><div class="tag is-medium is-primary is-pulled-right">'+msg.mensagem+'</div></div>'));
+                } else {
+                    $('#messages').append($('<div class="msg otr"><div class="tag is-inline-block is-medium"><span class="nick is-block"><small><strong>'+msg.nick+'</strong></small></span><span >'+msg.mensagem+'</spam></div></div>'));
+                    }
+                    updateScroll();
+                });
+                socket.on('login', function(nick){
+                    $('#messages').append($('<div class="connect">'+nick+' entrou no chat!</div>'));
+                    updateScroll();
+                });
             });
-        });
-    </script>
-</body>
-</html>
+        </script>
+    </body>
+    </html>
+    
