@@ -7,7 +7,7 @@ var mensagens = [];
 
 var sanitize = function(data) {
     return sanitizeHtml(data, {
-        allowedTags: [ 'b', 'i', 'em', 'strong', 'a' ],
+        allowedTags: [ 'b', 'i', 'em', 'strong', 'mark', 'small', 'del', 'ins', 'sub', 'sup', 'a' ],
         allowedAttributes: {
             'a': [ 'href' ]
         },
