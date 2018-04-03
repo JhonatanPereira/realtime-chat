@@ -85,7 +85,7 @@
                 var inputNick = $("#input-nick");
                 if (inputNick.val()) {
                     localStorage.setItem('nick', inputNick.val());
-                    socket.emit('login', localStorage.getItem('nick'));
+                    socket.emit('login', inputNick.val());
                     location.reload();
                 }
             });
