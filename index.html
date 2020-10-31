@@ -3,15 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="author" content="Jhonatan Pereira - jhonatan.me">
     <title>Chat em tempo real</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css" />    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <link rel="stylesheet" href="/css/bulma.min.css"></script>
     <style>
         html {background-color: #3273dc;}
         #messages { list-style-type: none; margin: 0; padding: 0; }
         #messages .msg { padding: 5px 10px; }
         #messages .otr:nth-child(odd) .tag { background: #eee; }
-        .corpo-chat {height: 500px; overflow-y: scroll;}
+        .chat-body {height: 500px; overflow-y: scroll;}
         .field-chat{width: 100%;}
         .connect {opacity: .6;}
         span.vc{color: blueviolet;}
@@ -45,15 +44,15 @@
                     </div>
                 </form>
             </div>
-            <div class="card" id="chat-top" style="display:none;">
+            <div class="card" id="chat-body" style="display:none;">
                 <form action="" id="msgForm">
-                    <div class="card-content corpo-chat" id="chat">
+                    <div class="card-content chat-body" id="chat">
                         <div id="messages"></div>
                     </div>
                     <footer class="card-footer">
                         <div class="field has-addons field-chat">
                             <div class="control is-expanded">
-                                <input placeholder="Mensagem aqui" class="input is-medium" id="m" autocomplete="off" />
+                                <input placeholder="Digite a mensagem aqui" class="input is-medium" id="message-input" autocomplete="off" />
                             </div>
                             <div class="control">
                                 <button class="button is-primary is-medium">Enviar</button>
@@ -66,35 +65,42 @@
         </div>
     </section>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/jquery-3.5.1.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
     <script>
         var nick = $("#nick");
-        var chatTop = $("#chat-top");
+        var chatBody = $("#chat-body");
+        function updateScroll(){
+            var el = $("#chat");
+            el.scrollTop(10000000);
+        }
         $(function () {
-            function updateScroll(){
-                var el = $("#chat");
-                el.scrollTop(10000000);
-            }
             var socket = io();
             if (localStorage.getItem('nick')) {
-                chatTop.show();
-            } else
-            nick.show();
+                chatBody.show();
+            } else {
+                nick.show();
+            }
+            
             $("#nickForm").on('submit', function () {
                 var inputNick = $("#input-nick");
                 if (inputNick.val()) {
                     localStorage.setItem('nick', inputNick.val());
                     socket.emit('login', inputNick.val());
                     location.reload();
+                } else {
+                    alert('Preencha o campo nick com seu apelido');
+                    return false;
                 }
             });
             $('#msgForm').submit(function(){
-                var messageInput = $('#m');
+                var messageInput = $('#message-input');
                 if (messageInput.val()) {
                     var nick = localStorage.getItem('nick');
                     socket.emit('chat message', {nick: nick, mensagem: messageInput.val()});
                     messageInput.val('');
+                } else {
+                    alert('Preencha o campo com sua mensagem');
                 }
                 return false;
             });
