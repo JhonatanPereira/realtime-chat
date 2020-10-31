@@ -1,8 +1,10 @@
 var app = require('express')();
+var express = require('express');
+var path = require('path');
+
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var sanitizeHtml = require('sanitize-html');
-
 var mensagens = [];
 
 var sanitize = function(data) {
@@ -42,6 +44,9 @@ io.on('connection', function(socket){
     });
 });
 
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 http.listen(3000, function(){
-    console.log('listening on *:3000');
+    console.log('Aplicação disponível em *:3000');
 });
