@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "sanitize-html": "^1.19.2",
+    "sanitize-html": "^2.3.2",
     "socket.io": "^2.2.0",
     "lodash.mergewith": ">=4.6.2"
   }
